@@ -1,0 +1,32 @@
+title: Volume Shadow Copy Deletion via Vssadmin or WMIC
+id: a2d97c50-1e3f-4b8a-8c6d-0f4e9b7a2d31
+status: experimental
+description: |
+  Detects deletion of Volume Shadow Copies, a step ransomware operators routinely
+  take just before encryption so victims cannot restore files. Black Basta, the
+  group behind the 2024 attack on Southern Water, is documented using this technique.
+references:
+  - https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-131a
+author: Taw
+date: 2026-09-19
+tags:
+  - attack.impact
+  - attack.t1490
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_vssadmin:
+    Image|endswith: '\vssadmin.exe'
+    CommandLine|contains|all:
+      - 'delete'
+      - 'shadows'
+  selection_wmic:
+    Image|endswith: '\wmic.exe'
+    CommandLine|contains|all:
+      - 'shadowcopy'
+      - 'delete'
+  condition: 1 of selection_*
+falsepositives:
+  - Backup software or administrators cleaning up old shadow copies
+level: high

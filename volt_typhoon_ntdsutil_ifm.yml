@@ -1,0 +1,30 @@
+title: NTDS.dit Extraction via Ntdsutil Install From Media
+id: 6f3c2a1e-8b4d-4c7a-9e21-5d0f7a3b9c14
+status: experimental
+description: |
+  Detects ntdsutil.exe being used to create an "Install From Media" (IFM) copy of
+  the Active Directory database. Volt Typhoon, a state-sponsored group that has
+  pre-positioned in US water and other critical infrastructure networks, used this
+  living-off-the-land technique to steal credential hashes from domain controllers.
+references:
+  - https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-038a
+author: Taw
+date: 2026-09-19
+tags:
+  - attack.credential-access
+  - attack.t1003.003
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_img:
+    - Image|endswith: '\ntdsutil.exe'
+    - OriginalFileName: 'ntdsutil.exe'
+  selection_cli:
+    CommandLine|contains|all:
+      - 'ifm'
+      - 'create full'
+  condition: all of selection_*
+falsepositives:
+  - Administrators legitimately creating IFM media to promote a new domain controller
+level: high
